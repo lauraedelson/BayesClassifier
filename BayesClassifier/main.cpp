@@ -36,15 +36,15 @@ bool isShort(string input) { return (input.empty() || input.length() < 3); }
 
 vector<string> normalize(vector<string> input, vector<string> stop_words) {
 	vector<string> output;
-	for (string word : input) {
-		transform(word.begin(), word.end(), word.begin(), ::tolower);
-		removePunc(word);
-		if (!isShort(word)) {
-			output.push_back(word);
+	for (vector<string>::iterator in_iter = input.begin(); in_iter != input.end(); in_iter++) {
+		transform(in_iter->begin(), in_iter->end(), in_iter->begin(), ::tolower);
+		removePunc(*in_iter);
+		if (!isShort(*in_iter)) {
+			output.push_back(*in_iter);
 		}
 	}
-	for (string word : stop_words) {
-		vector<string>::iterator it = find(output.begin(), output.end(), word);
+	for (vector<string>::iterator stop_iter = stop_words.begin(); stop_iter != stop_words.end(); stop_iter++) {
+		vector<string>::iterator it = find(output.begin(), output.end(), stop_iter);
 		if ( it != output.end()) {
 			output.erase(it);
 		}
