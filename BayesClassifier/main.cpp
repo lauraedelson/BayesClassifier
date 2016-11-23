@@ -29,7 +29,13 @@ vector<string> tokenize(string& input) {
 }
 
 void removePunc(string& input) {
-	input.erase(remove_if(input.begin(), input.end(), ispunct), input.end());
+	string output;
+	for (size_t i = 0; i < input.length(); i++) {
+		if (!ispunct(input[i])) {
+			output.push_back(input[i]);
+		}
+	}
+	input = output;
 }
 
 bool isShort(string input) { return (input.empty() || input.length() < 3); }
