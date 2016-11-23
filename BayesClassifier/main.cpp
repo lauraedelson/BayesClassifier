@@ -157,25 +157,18 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	
-	//calculate frequencies
+	//calculate frequencies & probabilities
+	double correct = .1;
 	for (map<string, double>::iterator cat_iter = category_count.begin(); cat_iter != category_count.end();  cat_iter++) {
 		for (map<string, double>::iterator word_iter = word_count[cat_iter->first].begin(); word_iter != word_count[cat_iter->first].end(); word_iter++) {
 			word_iter->second = word_iter->second / cat_iter->second;
-		}
-		cat_iter->second = cat_iter->second / training_set_size;
-	}
-
-	//calculate probabilities
-	double correct = .1;
-	for (map<string, double>::iterator cat_iter = category_count.begin(); cat_iter != category_count.end(); cat_iter++) {
-		for (map<string, double>::iterator word_iter = word_count[cat_iter->first].begin(); word_iter != word_count[cat_iter->first].end(); word_iter++) {
 			word_iter->second = -1 * log2((word_iter->second + correct) / (1 + (2 * correct)));
 		}
+		cat_iter->second = cat_iter->second / training_set_size;
 		cat_iter->second = -1 * log2((cat_iter->second + correct) / (1 + (category_count.size() * correct)));
 	}
 
-
-	//now for prediction time
+	//now for prediction time (
 	map<string, map<string, double>> test_words;
 	size_t correct_count = 0;
 	for (vector<biography>::iterator bio_iter = test_set.begin(); bio_iter != test_set.end(); bio_iter++) {
