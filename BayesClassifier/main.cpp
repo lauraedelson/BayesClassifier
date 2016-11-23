@@ -44,7 +44,7 @@ vector<string> normalize(vector<string> input, vector<string> stop_words) {
 		}
 	}
 	for (vector<string>::iterator stop_iter = stop_words.begin(); stop_iter != stop_words.end(); stop_iter++) {
-		vector<string>::iterator it = find(output.begin(), output.end(), stop_iter);
+		vector<string>::iterator it = find(output.begin(), output.end(), *stop_iter);
 		if ( it != output.end()) {
 			output.erase(it);
 		}
@@ -123,30 +123,30 @@ int main(int argc, char* argv[]) {
 	map<string, double> category_count;
 	map<string, map<string, double>> word_count;
 
-	for (biography currBio : training_set) {
+	for (vector<biography>::iterator bio_iter = training_set.begin(); bio_iter != training_set.end(); bio_iter++) {
 		//this is a new category
-		if (category_count.find(currBio.category) == category_count.end()) {
-			category_count[currBio.category] = 1;
-			word_count[currBio.category];
-			for (pair<string, double> words : word_count.begin()->second) {
-				word_count[currBio.category][words.first] = 0;
+		if (category_count.find(bio_iter->category) == category_count.end()) {
+			category_count[bio_iter->category] = 1;
+			word_count[bio_iter->category];
+			for (map<string, double>::iterator words_iter = word_count.begin()->second.begin(); words_iter != word_count.begin()->second.end(); words_iter++) {
+				word_count[bio_iter->category][words_iter->first] = 0;
 			}
 		}
 		else {
-			category_count[currBio.category] += 1;
+			category_count[bio_iter->category] += 1;
 		}
-		for (string word : currBio.words) {
+		for (set<string>::iterator word_iter = bio_iter->words.begin(); word_iter != bio_iter->words.end(); word_iter++) {
 			//this is a new word
-			if (word_count[currBio.category].find(word) == word_count[currBio.category].end()) {
-				word_count[currBio.category][word] = 1;
-				for (pair<string, double> cat : category_count) {
-					if (word_count[cat.first].find(word) == word_count[cat.first].end()) {
-						word_count[cat.first][word] = 0;
+			if (word_count[bio_iter->category].find(*word_iter) == word_count[bio_iter->category].end()) {
+				word_count[bio_iter->category][*word_iter] = 1;
+				for (map<string, double>::iterator cat = category_count.begin(); cat != category_count.end(); cat++) {
+					if (word_count[cat->first].find(*word_iter) == word_count[cat->first].end()) {
+						word_count[cat->first][*word_iter] = 0;
 					}
 				}
 			}
 			else {
-				word_count[currBio.category][word] += 1;
+				word_count[bio_iter->category][*word_iter] += 1;
 			}
 		}
 	}
@@ -172,26 +172,26 @@ int main(int argc, char* argv[]) {
 	//now for prediction time
 	map<string, map<string, double>> test_words;
 	size_t correct_count = 0;
-	for (biography bio : test_set) {
-		cout << bio.name << endl;
+	for (vector<biography>::iterator bio_iter = test_set.begin(); bio_iter != test_set.end(); bio_iter++) {
+		cout << bio_iter->name << endl;
 		map<string, double> category_probs;
-		for (pair<string, map<string, double>> previous : word_count) {
+		for (map<string, map<string, double>>::iterator previous_iter = word_count.begin(); previous_iter != word_count.end(); previous_iter++) {
 			double weight_sum = 0;
-			for (string word : bio.words) {
-				if (previous.second.find(word) != previous.second.end()) {
-					weight_sum += previous.second[word];
+			for (set<string>::iterator word = bio_iter->words.begin(); word != bio_iter->words.end(); word++) {
+				if (previous_iter->second.find(*word) != previous_iter->second.end()) {
+					weight_sum += previous_iter->second[*word];
 				}
 			}
-			category_probs[previous.first] = category_count[previous.first] + weight_sum;
+			category_probs[previous_iter->first] = category_count[previous_iter->first] + weight_sum;
 		}
 
 		double min_value = category_probs.begin()->second;
 		string prediction = category_probs.begin()->first;
 		//predict
-		for (pair<string, double> category : category_probs) {
-			if (category.second < min_value) {
-				min_value = category.second;
-				prediction = category.first;
+		for (map<string, double>::iterator cate_iter = category_probs.begin(); cate_iter != category_probs.end(); cate_iter++) {
+			if (cate_iter->second < min_value) {
+				min_value = cate_iter->second;
+				prediction = cate_iter->first;
 			}
 		}
 
@@ -205,13 +205,13 @@ int main(int argc, char* argv[]) {
 		}
 
 		cout << "probabilities" << endl;
-		for (pair<string, double> category : category_probs) {
-			cout << category.first << ":" << to_string(category.second / prob_sum) << endl;
+		for (map<string, double>::iterator category = category_probs.begin(); category != category_probs.end(); category++) {
+			cout << category->first << ":" << to_string(category->second / prob_sum) << endl;
 		}
 
 		cout << "prediction: " << prediction << endl;
 
-		if (bio.category == prediction) {
+		if (bio_iter->category == prediction) {
 			cout << "prediction is right!" << endl;
 			correct_count++;
 		}
