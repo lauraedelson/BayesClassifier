@@ -205,7 +205,8 @@ int main(int argc, char* argv[]) {
 
 		cout << "probabilities" << endl;
 		for (map<string, double>::iterator category = category_probs.begin(); category != category_probs.end(); category++) {
-			cout << category->first << ":" << to_string((double long)category->second / prob_sum) << endl;
+			cout << category->first << ":";
+			cout << std::fixed << std::setprecision(2) << to_string((double long)category->second / prob_sum) << endl;
 		}
 
 		cout << "prediction: " << prediction << endl;
@@ -219,5 +220,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	double accuracy = double(correct_count) / double(test_set.size());
-	cout << "Accuracy: " << to_string((double long)accuracy) << endl;
+
+	cout << "Accuracy: ";
+	cout << std::fixed << std::setprecision(2) << to_string((double long)accuracy) << endl;
 }
